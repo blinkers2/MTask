@@ -1,0 +1,6 @@
+@MTask_HostAddress = http://localhost:5241
+
+GET {{MTask_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
