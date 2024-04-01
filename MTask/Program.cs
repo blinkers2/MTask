@@ -5,7 +5,7 @@ using MTask.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<TagDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("MTaskDb")));
 
 builder.Services.AddHttpClient(); // PóŸniej us³ugi do wywalenia do oddzielnego startConfiguration
 builder.Services.AddScoped<TagService>();
