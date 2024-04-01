@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MTask.Data.Entities;
+using MTask.Services;
 using System.Text.Json;
 
 namespace MTask.Controllers
@@ -10,19 +11,19 @@ namespace MTask.Controllers
     {
         private readonly ILogger<TagController> _logger;
         private readonly HttpClient _httpClient;
-        private readonly TagDbContext _dbContext; // jeszcze nie ma
+        private readonly TagService _tagService;
 
-        public TagController(ILogger<TagController> logger, HttpClient httpClient, TagDbContext dbContext)
+        public TagController(ILogger<TagController> logger, HttpClient httpClient, TagService tagService)
         {
             _logger = logger;
             _httpClient = httpClient;
-            _dbContext = dbContext;
+            _tagService = tagService;
         }
 
         [HttpGet("AllTags")]
         public async Task<IActionResult> GetAllTagsAsync()
         {
-            int totalPages = 11; // można to jeszcze ustawić jako zmienną a nie hardcode...
+            int totalPages = 11;
             List<Tag> allTags = new List<Tag>();
 
             try
@@ -41,30 +42,21 @@ namespace MTask.Controllers
                     }
                 }
 
-                decimal totalCounts = allTags.Sum(tag => tag.Count);
-
-                foreach (var tag in allTags)
-                {
-                    tag.PercentageInWholePopulation = ((decimal)tag.Count / totalCounts) * 100;
-                }
-
-                // jak stworzę dbcontext to zrobimy tu zapisywanie/ chyba że to wszystko przerzucę jeszcze do Service...
-                // _dbContext.Tags.AddRange(allTags);
-                // await _dbContext.SaveChangesAsync();
+                await _tagService.ProcessTagsAsync(allTags);
 
                 return Ok(allTags);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error fetching tags: {ex.Message}"); // middleware do dodania exception
+                _logger.LogError($"Error fetching tags: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
-
         public class Root
         {
             public List<Tag> Items { get; set; }
         }
+    
     }
 }
 
