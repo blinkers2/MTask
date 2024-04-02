@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using MTask.Data;
 using MTask.Data.Entities;
 using MTask.Services;
 using System.Text.Json;
@@ -14,15 +14,17 @@ namespace MTask.Controllers
         private readonly ILogger<TagController> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly TagService _tagService;
+        private readonly TagDbContext _dbContext;
 
-        public TagController(ILogger<TagController> logger, IHttpClientFactory httpClientFactory, TagService tagService)
+        public TagController(ILogger<TagController> logger, IHttpClientFactory httpClientFactory, TagService tagService, TagDbContext dbContext)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
             _tagService = tagService;
+            _dbContext = dbContext;
         }
 
-        [HttpGet("AllTags")]
+        [HttpPost("AllTags")]
         public async Task<IActionResult> GetAllTagsAsync()
         {
             var httpClient = _httpClientFactory.CreateClient("StackExchangeClient");
@@ -69,6 +71,15 @@ namespace MTask.Controllers
         {
             var tags = await _tagService.GetSortedAndPagedTags(pageNumber, pageSize, sortBy, sortAscending);
             return Ok(tags);
+        }
+
+        [HttpPost("RefreshTags")]
+        public async Task<IActionResult> RefreshTags()
+        {
+            await _tagService.RemoveTagsAsync();
+
+            await GetAllTagsAsync();
+            return Ok("Tags have been refreshed.");
         }
 
     }

@@ -47,5 +47,11 @@ namespace MTask.Services
 
             return tags;
         }
+
+        public async Task RemoveTagsAsync()
+        {
+            _dbContext.Tags.RemoveRange(_dbContext.Tags);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }
