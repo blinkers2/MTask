@@ -36,7 +36,6 @@ namespace MTask.Services
                     allTags.AddRange(data.Items);
                 }
             }
-
             return allTags;
         }
 
@@ -66,7 +65,6 @@ namespace MTask.Services
             // czy mam to dać jako oddzielną klasę do folderu MODELS, tak mi się wydawało że bez sensu...
         {
             IQueryable<Tag> query = _dbContext.Tags;
-
             query = sortBy switch
             {
                 "name" => sortAscending ? query.OrderBy(t => t.Name) : query.OrderByDescending(t => t.Name),
@@ -79,7 +77,6 @@ namespace MTask.Services
                 .Take(pageSize)
                 .ToListAsync();
             // Tu ważne bo zwracam całe TAG data z bazy danych razem z Id, mam zrobić DTO żeby tylko zwracać name, count i percentage? Id jest zrobione przeze mnie z GUID
-
             return tags;
         }
 

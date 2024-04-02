@@ -10,7 +10,6 @@ namespace MTask.Controllers
         private readonly ILogger<TagController> _logger;
         private readonly TagService _tagService;
 
-
         public TagController(ILogger<TagController> logger, TagService tagService)
         {
             _logger = logger;
@@ -72,7 +71,5 @@ namespace MTask.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-
     }
 }
-
