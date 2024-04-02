@@ -1,4 +1,5 @@
-﻿using MTask.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using MTask.Data;
 using MTask.Data.Entities;
 
 namespace MTask.Services
@@ -26,6 +27,25 @@ namespace MTask.Services
             if (allTagsSum == 0) return 0;
             decimal percentage = (decimal)part / allTagsSum * 100;
             return Math.Round(percentage, 2);
+        }
+
+        public async Task<List<Tag>> GetSortedAndPagedTags(int pageNumber, int pageSize, string sortBy, bool sortAscending)
+        {
+            IQueryable<Tag> query = _dbContext.Tags;
+
+            query = sortBy switch
+            {
+                "name" => sortAscending ? query.OrderBy(t => t.Name) : query.OrderByDescending(t => t.Name),
+                "percentage" => sortAscending ? query.OrderBy(t => t.PercentageInWholePopulation) : query.OrderByDescending(t => t.PercentageInWholePopulation),
+                _ => query.OrderBy(t => t.Name)
+            };
+
+            var tags = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return tags;
         }
     }
 }

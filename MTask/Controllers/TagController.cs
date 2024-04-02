@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MTask.Data.Entities;
 using MTask.Services;
 using System.Text.Json;
@@ -58,7 +59,18 @@ namespace MTask.Controllers
             [JsonPropertyName("items")]
             public List<Tag> Items { get; set; }
         }
-    
+
+        [HttpGet("SortByTags")]
+        public async Task<IActionResult> GetTags(
+        [FromQuery] int pageNumber = 55,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string sortBy = "percentage",
+        [FromQuery] bool sortAscending = true)
+        {
+            var tags = await _tagService.GetSortedAndPagedTags(pageNumber, pageSize, sortBy, sortAscending);
+            return Ok(tags);
+        }
+
     }
 }
 
