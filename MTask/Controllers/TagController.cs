@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MTask.Data;
-using MTask.Data.Entities;
 using MTask.Services;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace MTask.Controllers
 {
@@ -12,58 +8,34 @@ namespace MTask.Controllers
     public class TagController : ControllerBase
     {
         private readonly ILogger<TagController> _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly TagService _tagService;
-        private readonly TagDbContext _dbContext;
 
-        public TagController(ILogger<TagController> logger, IHttpClientFactory httpClientFactory, TagService tagService, TagDbContext dbContext)
+
+        public TagController(ILogger<TagController> logger, TagService tagService)
         {
             _logger = logger;
-            _httpClientFactory = httpClientFactory;
             _tagService = tagService;
-            _dbContext = dbContext;
         }
 
-        [HttpPost("AllTags")]
-        public async Task<IActionResult> GetAllTagsAsync()
+        [HttpPost("FetchandSaveTags")]
+        public async Task<IActionResult> FetchAndSaveTags()
         {
-            var httpClient = _httpClientFactory.CreateClient("StackExchangeClient");
-            int totalPages = 11;
-            List<Tag> allTags = new List<Tag>();
-
             try
             {
-                for (int page = 1; page <= totalPages; page++)
-                {
-                    var response = await httpClient.GetAsync($"tags?page={page}&pagesize=100&order=desc&sort=popular&site=stackoverflow&filter=!bMsg5CXICdlFSp");
-                    response.EnsureSuccessStatusCode();
+                var tags = await _tagService.FetchTagsFromApiAndSaveAsync();
+                await _tagService.ProcessTagsAsync(tags);
 
-                    var jsonResponse = await response.Content.ReadAsStringAsync();
-                    var data = JsonSerializer.Deserialize<Root>(jsonResponse);
-
-                    if (data?.Items != null)
-                    {
-                        allTags.AddRange(data.Items);   
-                    }
-                }
-                await _tagService.ProcessTagsAsync(allTags); 
-
-                return Ok(allTags); 
+                return Ok(tags);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error fetching tags: {ex.Message}");
+                _logger.LogError($"Error fetching and saving tags: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
-        public class Root
-        {
-            [JsonPropertyName("items")]
-            public List<Tag> Items { get; set; }
-        }
 
         [HttpGet("SortByTags")]
-        public async Task<IActionResult> GetTags(
+        public async Task<IActionResult> GetTagsPaged(
         [FromQuery] int pageNumber = 55,
         [FromQuery] int pageSize = 10,
         [FromQuery] string sortBy = "percentage",
@@ -76,10 +48,19 @@ namespace MTask.Controllers
         [HttpPost("RefreshTags")]
         public async Task<IActionResult> RefreshTags()
         {
-            await _tagService.RemoveTagsAsync();
+            try
+            {
+                await _tagService.RemoveTagsAsync();
+                var tags = await _tagService.FetchTagsFromApiAndSaveAsync();
+                await _tagService.ProcessTagsAsync(tags);
 
-            await GetAllTagsAsync();
-            return Ok("Tags have been refreshed.");
+                return Ok(tags);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error fetching and saving tags: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
     }
