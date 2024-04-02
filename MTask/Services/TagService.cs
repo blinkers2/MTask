@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace MTask.Services
 {
-    public class TagService
+    public class TagService : ITagService
     {
         private readonly TagDbContext _dbContext;
         private readonly IHttpClientFactory _httpClientFactory;
@@ -20,7 +20,7 @@ namespace MTask.Services
         public async Task<List<Tag>> FetchTagsFromApiAndSaveAsync()
         {
             var httpClient = _httpClientFactory.CreateClient("StackExchangeClient");
-            int totalPages = 11; 
+            int totalPages = 11;// to jest sztywne, zmienic na parametr metody
             List<Tag> allTags = new List<Tag>();
 
             for (int page = 1; page <= totalPages; page++)
@@ -31,8 +31,6 @@ namespace MTask.Services
                 var jsonResponse = await response.Content.ReadAsStringAsync();
                 var data = JsonSerializer.Deserialize<Root>(jsonResponse);
 
-
-
                 if (data?.Items != null)
                 {
                     allTags.AddRange(data.Items);
@@ -42,7 +40,7 @@ namespace MTask.Services
             return allTags;
         }
 
-        private class Root
+        private class Root // to mogę dać do folderu MODELS jak go stworzę...
         {
             [JsonPropertyName("items")]
             public List<Tag> Items { get; set; }
@@ -64,7 +62,8 @@ namespace MTask.Services
             return Math.Round(percentage, 2);
         }
 
-        public async Task<List<Tag>> GetSortedAndPagedTags(int pageNumber, int pageSize, string sortBy, bool sortAscending)
+        public async Task<List<Tag>> GetSortedAndPagedTags(int pageNumber, int pageSize, string sortBy, bool sortAscending) // to jest paginacja, przerzucona na baze danych
+            // czy mam to dać jako oddzielną klasę do folderu MODELS, tak mi się wydawało że bez sensu...
         {
             IQueryable<Tag> query = _dbContext.Tags;
 
@@ -79,6 +78,7 @@ namespace MTask.Services
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+            // Tu ważne bo zwracam całe TAG data z bazy danych razem z Id, mam zrobić DTO żeby tylko zwracać name, count i percentage? Id jest zrobione przeze mnie z GUID
 
             return tags;
         }
