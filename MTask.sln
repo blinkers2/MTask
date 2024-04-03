@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTask", "MTask\MTask.csproj", "{8C3E9087-6AAA-49DC-AF4B-9B6ADACEC948}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTask", "MTask\MTask.csproj", "{8C3E9087-6AAA-49DC-AF4B-9B6ADACEC948}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMTask", "TestMTask\TestMTask.csproj", "{CD96C1C7-8AC3-497D-BE0C-4059245FC88E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8C3E9087-6AAA-49DC-AF4B-9B6ADACEC948} = {8C3E9087-6AAA-49DC-AF4B-9B6ADACEC948}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +20,10 @@ Global
 		{8C3E9087-6AAA-49DC-AF4B-9B6ADACEC948}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C3E9087-6AAA-49DC-AF4B-9B6ADACEC948}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C3E9087-6AAA-49DC-AF4B-9B6ADACEC948}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD96C1C7-8AC3-497D-BE0C-4059245FC88E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD96C1C7-8AC3-497D-BE0C-4059245FC88E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD96C1C7-8AC3-497D-BE0C-4059245FC88E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD96C1C7-8AC3-497D-BE0C-4059245FC88E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

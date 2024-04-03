@@ -19,24 +19,29 @@ namespace MTask.Services
 
         public async Task<List<Tag>> FetchTagsFromApiAndSaveAsync()
         {
-            var httpClient = _httpClientFactory.CreateClient("StackExchangeClient");
-            int totalPages = 11;// to jest sztywne, zmienic na parametr metody
+            int totalPages = 11;
             List<Tag> allTags = new List<Tag>();
 
             for (int page = 1; page <= totalPages; page++)
             {
-                var response = await httpClient.GetAsync($"tags?page={page}&pagesize=100&order=desc&sort=popular&site=stackoverflow&filter=!bMsg5CXICdlFSp");
-                response.EnsureSuccessStatusCode();
-
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                var data = JsonSerializer.Deserialize<Root>(jsonResponse);
-
-                if (data?.Items != null)
-                {
-                    allTags.AddRange(data.Items);
-                }
+                string requestUri = $"tags?page={page}&pagesize=100&order=desc&sort=popular&site=stackoverflow&filter=!bMsg5CXICdlFSp";
+                var tagsFromPage = await GetTagsFromApiAsync(requestUri);
+                allTags.AddRange(tagsFromPage);
             }
+
             return allTags;
+        }
+
+        protected virtual async Task<List<Tag>> GetTagsFromApiAsync(string requestUri)
+        {
+            var httpClient = _httpClientFactory.CreateClient("StackExchangeClient");
+            var response = await httpClient.GetAsync(requestUri);
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var data = JsonSerializer.Deserialize<Root>(jsonResponse);
+
+            return data?.Items ?? new List<Tag>();
         }
 
         private class Root // to mogę dać do folderu MODELS jak go stworzę...
@@ -54,12 +59,8 @@ namespace MTask.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        private decimal CalculatePercentage(int part, decimal allTagsSum)
-        {
-            if (allTagsSum == 0) return 0;
-            decimal percentage = (decimal)part / allTagsSum * 100;
-            return Math.Round(percentage, 2);
-        }
+        private decimal CalculatePercentage(int singleTagCount, decimal allTagsSum) =>
+            allTagsSum == 0 ? 0 : Math.Round((decimal)singleTagCount / allTagsSum * 100, 2);
 
         public async Task<List<Tag>> GetSortedAndPagedTags(int pageNumber, int pageSize, string sortBy, bool sortAscending) // to jest paginacja, przerzucona na baze danych
             // czy mam to dać jako oddzielną klasę do folderu MODELS, tak mi się wydawało że bez sensu...
