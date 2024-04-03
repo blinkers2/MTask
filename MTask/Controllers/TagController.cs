@@ -8,9 +8,9 @@ namespace MTask.Controllers
     public class TagController : ControllerBase
     {
         private readonly ILogger<TagController> _logger;
-        private readonly TagService _tagService;
+        private readonly ITagService _tagService;
 
-        public TagController(ILogger<TagController> logger, TagService tagService)
+        public TagController(ILogger<TagController> logger, ITagService tagService)
         {
             _logger = logger;
             _tagService = tagService;
@@ -23,6 +23,7 @@ namespace MTask.Controllers
         {
             try
             {
+                _logger.LogInformation("Fetching and saving tags");
                 var tags = await _tagService.FetchTagsFromApiAndSaveAsync();
                 await _tagService.ProcessTagsAsync(tags);
 
@@ -59,6 +60,7 @@ namespace MTask.Controllers
         {
             try
             {
+                _logger.LogInformation("Clearing database, removing all data");
                 await _tagService.RemoveTagsAsync();
                 var tags = await _tagService.FetchTagsFromApiAndSaveAsync();
                 await _tagService.ProcessTagsAsync(tags);

@@ -1,14 +1,18 @@
 using MTask.Services;
 using MTask.Extensions;
+using MTask.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.UseSerilogConfiguration();
+
 builder.Services
+    .AddScoped<ITagService, TagService>()
+    .AddScoped<ErrorLoggingMiddleware>()
     .AddEndpointsApiExplorer()
     .AddSwaggerDocumentation()
     .AddDatabase(builder.Configuration)
     .AddHttpClientServices()
-    .AddScoped<ITagService>()
     .AddControllers()
     .AddJsonOptions(options =>
     {
@@ -17,6 +21,7 @@ builder.Services
 
 var app = builder.Build();
 
+app.UseMiddleware<ErrorLoggingMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
