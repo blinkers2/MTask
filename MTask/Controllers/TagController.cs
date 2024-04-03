@@ -18,23 +18,16 @@ namespace MTask.Controllers
         /// <summary>
         /// Fetches and saves 1100 TAG data from API StackExchange. Add the percentage of each Tag count in whole Tag count population.
         /// </summary>
-        [HttpPost("FetchandSaveTags")]
+        [HttpPost("FetchAndSaveTags")]
         public async Task<IActionResult> FetchAndSaveTags()
         {
-            try
-            {
-                _logger.LogInformation("Fetching and saving tags");
-                var tags = await _tagService.FetchTagsFromApiAndSaveAsync();
-                await _tagService.ProcessTagsAsync(tags);
+            _logger.LogInformation("Fetching and saving tags");
+            var tags = await _tagService.FetchTagsFromApiAndSaveAsync();
+            await _tagService.ProcessTagsAsync(tags);
 
-                return Ok(tags);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error fetching and saving tags: {ex.Message}");
-                return StatusCode(500, "Internal server error");
-            }
+            return Ok(tags);
         }
+
         /// <summary>
         /// Returns paged and sorted Tag list.
         /// </summary>
@@ -44,34 +37,27 @@ namespace MTask.Controllers
         /// <param name="sortAscending">Sorting ascending or descending.</param>
         [HttpGet("SortByTags")]
         public async Task<IActionResult> GetTagsPaged(
-        [FromQuery] int pageNumber = 55,
-        [FromQuery] int pageSize = 10,
-        [FromQuery] string sortBy = "percentage",
-        [FromQuery] bool sortAscending = true)
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string sortBy = "percentage",
+            [FromQuery] bool sortAscending = true)
         {
             var tags = await _tagService.GetSortedAndPagedTags(pageNumber, pageSize, sortBy, sortAscending);
             return Ok(tags);
         }
+
         /// <summary>
         /// Refreshes all Tag list by deleting old and fetching current one.
         /// </summary>
         [HttpPost("RefreshTags")]
         public async Task<IActionResult> RefreshTags()
         {
-            try
-            {
-                _logger.LogInformation("Clearing database, removing all data");
-                await _tagService.RemoveTagsAsync();
-                var tags = await _tagService.FetchTagsFromApiAndSaveAsync();
-                await _tagService.ProcessTagsAsync(tags);
+            _logger.LogInformation("Clearing database, removing all data");
+            await _tagService.RemoveTagsAsync();
+            var tags = await _tagService.FetchTagsFromApiAndSaveAsync();
+            await _tagService.ProcessTagsAsync(tags);
 
-                return Ok(tags);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error fetching and saving tags: {ex.Message}");
-                return StatusCode(500, "Internal server error");
-            }
+            return Ok(tags);
         }
     }
 }
