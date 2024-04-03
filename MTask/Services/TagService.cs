@@ -28,7 +28,6 @@ namespace MTask.Services
                 var tagsFromPage = await GetTagsFromApiAsync(requestUri);
                 allTags.AddRange(tagsFromPage);
             }
-
             return allTags;
         }
 
@@ -44,7 +43,7 @@ namespace MTask.Services
             return data?.Items ?? new List<Tag>();
         }
 
-        private class Root // to mogę dać do folderu MODELS jak go stworzę...
+        private class Root
         {
             [JsonPropertyName("items")]
             public List<Tag> Items { get; set; }
@@ -62,8 +61,7 @@ namespace MTask.Services
         private decimal CalculatePercentage(int singleTagCount, decimal allTagsSum) =>
             allTagsSum == 0 ? 0 : Math.Round((decimal)singleTagCount / allTagsSum * 100, 2);
 
-        public async Task<List<Tag>> GetSortedAndPagedTags(int pageNumber, int pageSize, string sortBy, bool sortAscending) // to jest paginacja, przerzucona na baze danych
-            // czy mam to dać jako oddzielną klasę do folderu MODELS, tak mi się wydawało że bez sensu...
+        public async Task<List<Tag>> GetSortedAndPagedTags(int pageNumber, int pageSize, string sortBy, bool sortAscending)
         {
             IQueryable<Tag> query = _dbContext.Tags;
             query = sortBy switch
@@ -77,7 +75,6 @@ namespace MTask.Services
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-            // Tu ważne bo zwracam całe TAG data z bazy danych razem z Id, mam zrobić DTO żeby tylko zwracać name, count i percentage? Id jest zrobione przeze mnie z GUID
             return tags;
         }
 
