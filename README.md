@@ -53,3 +53,41 @@ The project leverages several key packages to provide its functionality, includi
 - Serilog.Sinks.Console 5.0.1
 - Serilog.Sinks.File 5.0.0
 - Swashbuckle.AspNetCore 6.4.0
+
+### Installation
+
+To run the project, follow these steps:
+
+#### 1. Clone the Repository
+#### 2. Build Docker Images
+
+Build Docker images using Docker Compose:
+docker-compose build
+#### 3. Run Docker Containers
+
+Run the containers with the following command:
+
+bash
+
+docker-compose up
+
+Accessing the Application
+
+After the containers are up and running, your application will be accessible at the following addresses:
+Swagger UI
+
+Swagger UI is available at: http://localhost:8080/swagger
+Endpoints
+    http://localhost:8080/Tag/FetchAndSaveTags -POST
+    http://localhost:8080/Tag/SortByTags - GET
+    http://localhost:8080/Tag/RefreshTags - POST
+
+#### 4. Stopping and Removing Containers
+
+To stop and remove the containers, use the following:
+
+bash
+
+docker-compose down
+
+Thank You.
